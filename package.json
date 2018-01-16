@@ -1,5 +1,13 @@
 {
+  "name": "base-type",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel index.html -p 8000 & console.log(open local 8000)"
+  },
   "dependencies": {
-    "typescript": "^2.6.2"
+    "typescript": "^2.6.2",
+    "parcel-bundler": "^1.4.1"
   }
 }
