@@ -1,1 +1,1 @@
-import baseType from './baseType/index';
+import baseType from './src/baseType/index';
