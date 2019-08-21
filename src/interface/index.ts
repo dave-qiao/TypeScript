@@ -96,25 +96,29 @@ const jumpCheckObj = { name: 'ans', age: 200 };
 const jumpResult = testConfig(jumpCheckObj);
 
 // =============== 函数类型 ===============
+// 定义函数的入参以及返回值
 interface TestFunc {
   (name: number, age: number): string;
 }
 
-let testFunc: TestFunc;
-testFunc = (a: number, b: number) => {
+// 测试入参以及返回值、结果详见浏览器控制台
+let testFunc: TestFunc = (a: number, b: number) => {
   return a + b + '';
 }
-
-console.log(testFunc(5, 3));
+console.log(testFunc(5, 3), typeof testFunc(5, 4));
 
 // ============== 可索引类型 ==============
 
 interface StringArray {
-  [x: number]: string;
+  [x: string]: string;
 }
 
 let testArray: StringArray;
-testArray = ['a', 'b'];
+// 错误示例
+testArray = [ 'a', 'b', 'c']; // 不能将类型“string[]”分配给类型“StringArray” 类型“string[]”中缺少索引签名。
+testArray = [ 1, 2, 3]; // 不能将类型“number”分配给类型“string”
+// 正确示例
+testArray = {'a': 'b'}; // 不能将类型“string[]”分配给类型“StringArray” 类型“string[]”中缺少索引签名。
 const testArrayResult: string = testArray[0];
 console.log(testArrayResult, '可索引类型测试数组结果');
 
@@ -127,7 +131,109 @@ class Age extends Name {
 }
 
 interface ErrorResult {
+  [x: string] : Name;
+  [x: number] : Age;
+}
+
+// 错误写法如下
+interface ErrorResults {
+  [x: number] : Name; // TypeScript支持两种索引签名：字符串和数字。 可以同时使用两种类型的索引，但是数字索引的返回值必须是字符串索引返回值类型的子类型。 这是因为当使用 number来索引时，JavaScript会将它转换成string然后再去索引对象。 也就是说用 100（一个number）去索引等同于使用"100"（一个string）去索引，因此两者需要保持一致。
   [x: string] : Age;
 }
 
+interface NumberDictionary {
+  [index: string]: number;
+  length: number;
+  name: string; // 索引到结果不匹配对应的类型, 应为string
+}
 
+
+interface ClockInterface {
+  currentTime: Date;
+}
+
+class Clock  implements ClockInterface {
+  currentTime: Date; // 此处必须符合 ClockInterface 的接口设计, 若缺失则会报错
+  constructor(name: string, age: number) {
+    // do some thing
+  }
+}
+
+interface ClockWithFuncInterface {
+  currentTime: Date;
+  setTime(time: Date);
+}
+
+class Clocks implements ClockWithFuncInterface {
+  currentTime: Date;
+  setTime(time: Date) {
+    this.currentTime = time; // 不可丢失 setTime 方法
+  }
+}
+
+interface ClockConstructor {
+  new (h: number, m: number);
+}
+
+class Clock2 implements ClockConstructor {
+  currentTime: Date;
+  constructor() {
+    this.currentTime = new Date();
+  }
+}
+
+interface ClockConstructor {
+  new (hour: number, minute: number): ClockInterface2;
+}
+interface ClockInterface2 {
+  tick();
+}
+
+function createClock(ctor: ClockConstructor, hour: number, minute: number): ClockInterface2 {
+  return new ctor(hour, minute);
+}
+
+class DigitalClock implements ClockInterface2 {
+  constructor(h: number, m: number) { }
+  tick() {
+      console.log("beep beep");
+  }
+}
+class AnalogClock implements ClockInterface2 {
+  constructor(h: number, m: number) { }
+  tick() {
+    console.log("tick tock");
+  }
+}
+
+let digital = createClock(DigitalClock, 12, 17);
+let analog = createClock(AnalogClock, 7, 32);
+console.log(new DigitalClock(2, 4), new AnalogClock(6, 8), 'digital', 'analog');
+
+
+// ============== 继承接口 ==============
+
+interface Shape {
+  color: string;
+}
+
+interface Shapes {
+  name: string;
+}
+
+interface Square extends Shape {
+  length: number;
+}
+
+interface Squares extends Shape, Shapes {
+  age: number;
+}
+
+let square = <Square>{};
+square.color = 'blue';
+square.length = 13;
+
+let squares = <Squares>{}
+squares.color = 'red';
+squares.age = 15;
+squares.name = 'test';
